@@ -9,6 +9,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import java.sql.*;
+import java.util.ArrayList;
 
 /**
  * main class for the program
@@ -16,13 +17,15 @@ import java.sql.*;
 public class Main extends Application
 {
     //--------------------------------------INSTANCE VARIABLES------------------------------------------------------
-    private TextField name = new TextField("");
+    private TextField countryName = new TextField("");
     private TextField code = new TextField("");
     private TextField state = new TextField("");
     private Label languages = new Label("");
     private Label cities = new Label("");
     private String sql = "";
     private int selection = 1;
+    private int loopInt = 0;
+    ArrayList<Records> recordsLists = new ArrayList<Records>();
     //--------------------------------------------------------------------------------------------------------------
 
     /**
@@ -58,8 +61,10 @@ public class Main extends Application
      */
     public void trycatch(String insert)
     {
+        loopInt = 0;
         try
         {
+            recordsLists = new ArrayList<Records>();
             String url = "jdbc:sqlite:C:\\Users\\jjjme\\IdeaProjects\\Homework13\\src\\main\\resources\\World";
             Connection connection = DriverManager.getConnection(url);
 
@@ -78,12 +83,18 @@ public class Main extends Application
 
             while (rSet.next())
             {
-                name.setText(rSet.getString("Name"));
-                code.setText(rSet.getString("Code"));
-                state.setText(rSet.getString("HeadOFState"));
-                languages.setText(rSet.getString("Language"));
-                cities.setText(rSet.getString(5));
+                recordsLists.add(new Records(rSet.getString("Name"), rSet.getString("Code"),
+                        rSet.getString("HeadOFState"), rSet.getString("Language"),
+                        rSet.getString(5)));
+
             }
+            recordsLists.get(0);
+            countryName.setText(recordsLists.get(loopInt).getCountry());
+            code.setText(recordsLists.get(loopInt).getCode());
+            state.setText(recordsLists.get(loopInt).getState());
+            languages.setText(recordsLists.get(loopInt).getLanguages());
+            cities.setText(recordsLists.get(loopInt).getCities());
+            rSet.close();
         }
         catch (SQLException e)
         {
@@ -112,15 +123,15 @@ public class Main extends Application
         Label nameLabel = new Label("Country Name:");
         Label codeLabel = new Label("Country Code:");
         Label stateLabel = new Label("Head of State:");
-        Label languagesLabel = new Label("List of Languages Spoken:");
-        Label citiesLabel = new Label("Cities in the country:");
+        Label languagesLabel = new Label("Language Spoken:");
+        Label citiesLabel = new Label("City in the country:");
         //------------------------------------------------------------------
 
         //------------------CONTAINERS--------------------------------------
         HBox topHBox = new HBox(30,label);
         topHBox.setMinWidth(400);
         topHBox.setAlignment(Pos.CENTER);
-        HBox hBox1 = new HBox(10,nameLabel,name);
+        HBox hBox1 = new HBox(10,nameLabel,countryName);
         HBox hBox2 = new HBox(10,codeLabel,code,searchBtn);
         HBox hBox3 = new HBox(10,stateLabel,state);
         HBox hBox4 = new HBox(10,languagesLabel,languages);
@@ -151,7 +162,19 @@ public class Main extends Application
         @Override
         public void handle(ActionEvent event)
         {
+            if(loopInt > 0)
+            {
+                loopInt -= 1;
+                countryName.setText(recordsLists.get(loopInt).getCountry());
+                code.setText(recordsLists.get(loopInt).getCode());
+                state.setText(recordsLists.get(loopInt).getState());
+                languages.setText(recordsLists.get(loopInt).getLanguages());
+                cities.setText(recordsLists.get(loopInt).getCities());
+            }
+            else
+                {
 
+            }
         }
     }
 
@@ -160,7 +183,18 @@ public class Main extends Application
         @Override
         public void handle(ActionEvent event)
         {
+            if(loopInt > recordsLists.size() - 2)
+            {
 
+            }
+            else {
+                loopInt += 1;
+                countryName.setText(recordsLists.get(loopInt).getCountry());
+                code.setText(recordsLists.get(loopInt).getCode());
+                state.setText(recordsLists.get(loopInt).getState());
+                languages.setText(recordsLists.get(loopInt).getLanguages());
+                cities.setText(recordsLists.get(loopInt).getCities());
+            }
         }
     }
 
@@ -169,7 +203,7 @@ public class Main extends Application
         @Override
         public void handle(ActionEvent event)
         {
-            String tempName = name.getText();
+            String tempName = countryName.getText();
             String tempCode = code.getText();
 
             if(tempName.isEmpty() == false & tempCode.isEmpty() == false)
